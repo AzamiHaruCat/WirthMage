@@ -1,0 +1,9 @@
+**/__pycache__/
+**/*.py[codz]
+.*/
+dist/
+config.json
+
+# Nuitka
+nuitka-crash-report.xml
+scons-report.xml
