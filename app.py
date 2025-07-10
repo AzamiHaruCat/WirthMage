@@ -89,6 +89,18 @@ class App:
         view.quit_button.configure(command=self.quit)
         view.protocol("WM_DELETE_WINDOW", self.quit)
 
+        view.dnd_bind("<<Drop>>", self.on_drop)
+
+    def on_drop(self, event):
+        image_suffixes = {".bmp", ".png", ".jpg", ".jpeg", ".gif"}
+        image_files = [
+            path
+            for path in self.view.tk.splitlist(event.data)
+            if Path(path).suffix.lower() in image_suffixes
+        ]
+        if image_files:
+            self._add_input_files(image_files)
+
     def get_input_files(self):
         data = ast.literal_eval(self.model.input_files.get())
         ast.literal_eval
@@ -107,8 +119,10 @@ class App:
             filetypes=IMAGE_TYPES,
             initialdir=self.input_dir,
         )
-        if not paths:
-            return
+        if paths:
+            self._add_input_files(paths)
+
+    def _add_input_files(self, paths: Iterable[str]):
         data = self.get_input_files()
         for path in paths:
             path = Path(path)

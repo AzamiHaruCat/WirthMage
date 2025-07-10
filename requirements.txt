@@ -1,3 +1,4 @@
 customtkinter==5.2.2
 CTkListbox==1.5
+tkinterdnd2==0.4.3
 Nuitka>=2.7.12,<2.8

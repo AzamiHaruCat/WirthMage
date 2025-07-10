@@ -9,7 +9,7 @@ WirthMage は CardWirth 向けに画像形式・サイズ・色深度などを�
 特長
 ----
 
-- 選択した複数の画像をまとめて変換
+- ダイアログで選択またはドラッグ＆ドロップした複数の画像をまとめて変換
 - 「そのまま」「フルサイズ」「冒険者の宿」「カード」のプリセットサイズ
 - CardWirthPy用の2倍・4倍高解像度規格に対応
 - 出力形式 BMP/PNG/JPEG の切り替え
@@ -22,7 +22,7 @@ WirthMage は CardWirth 向けに画像形式・サイズ・色深度などを�
 - Windows 11（Windows 7 以降で動く可能性）
 - Python 3.13
 - ImageMagick 7.x（ポータブル版を同梱）
-- 使用ライブラリ：customtkinter、CTkListbox
+- 使用ライブラリ：customtkinter、CTkListbox、tkinterdnd2
 
 インストール・実行方法
 ----------------------

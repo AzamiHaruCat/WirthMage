@@ -15,6 +15,7 @@ from customtkinter import (
     CTkSegmentedButton,
     Variable,
 )
+from tkinterdnd2 import DND_FILES, TkinterDnD
 
 from constants import (
     ADD_LABEL,
@@ -64,9 +65,12 @@ T = TypeVar(
 )
 
 
-class UIView(CTk):
+class UIView(CTk, TkinterDnD.Tk):
     def __init__(self) -> None:
-        super().__init__()
+        CTk.__init__(self)
+        TkinterDnD.Tk.__init__(self)
+        self.drop_target_register(DND_FILES)
+
         # フォント
         s_width = self.winfo_screenwidth()
         s_height = self.winfo_screenheight()
