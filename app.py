@@ -16,11 +16,12 @@ from typing import cast
 
 import customtkinter as ctk
 
-from common import (
+from constants import (
     CONFIG_JSON,
     FILE_DIALOG_TITLE,
     FOLDER_FIALOG_TITLE,
     IMAGE_TYPES,
+    INPUT_PATH,
     WINDOW_TITLE,
     ImageSize,
     ImageType,
@@ -35,7 +36,7 @@ class App:
     model: UIModel
     view: UIView
 
-    input_dir = Path.home() / "Pictures"
+    input_dir = INPUT_PATH
 
     def __init__(self) -> None:
         ctk.set_default_color_theme("green")

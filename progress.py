@@ -1,5 +1,6 @@
 from customtkinter import CTkButton, CTkLabel, CTkProgressBar, CTkToplevel
 
+from constants import CANCEL_LABEL, PROGRESS_LABEL, PROGRESS_TITLE
 from ui_view import UIView
 
 
@@ -31,8 +32,8 @@ class ProgressView(CTkToplevel):
         self,
         master: UIView,
         model: ProgressModel,
-        window_title: str = "進行中...",
-        label_template: str = "{total}件中{current}番目が進行中...",
+        window_title: str = PROGRESS_TITLE,
+        label_template: str = PROGRESS_LABEL,
         *args,
         **kwargs,
     ) -> None:
@@ -49,7 +50,7 @@ class ProgressView(CTkToplevel):
         self.bar.pack(padx=size_unit // 2, pady=size_unit // 2)
         self.cancel_button = CTkButton(
             self,
-            text="キャンセル",
+            text=CANCEL_LABEL,
             font=master.font,
             command=self.cancel,
         )
@@ -78,9 +79,9 @@ class ProgressView(CTkToplevel):
             self.destroy()
 
     def destroy(self):
-        self.withdraw()
         self.master.attributes("-disabled", False)
         self.master.focus_set()
+        self.withdraw()
         self.after(100, super().destroy)
 
     def center_geometry(self, width: int, height: int):

@@ -16,7 +16,27 @@ from customtkinter import (
     Variable,
 )
 
-from common import ImageSize, ImageType, IndexedColor, OutlineStyle
+from constants import (
+    ADD_LABEL,
+    CHANGE_LABEL,
+    CLEAR_LABEL,
+    COLOR_MASK_LABEL,
+    EXECUTE_LABEL,
+    INDEXED_COLOR_LABEL,
+    NOTICE_MESSAGES,
+    OPEN_LABEL,
+    OUTLINE_STYLE_LABEL,
+    OUTPUT_2X_LABEL,
+    OUTPUT_4X_LABEL,
+    OUTPUT_FORMAT_LABEL,
+    OUTPUT_SIZE_LABEL,
+    QUIT_LABEL,
+    REMOVE_LABEL,
+    ImageSize,
+    ImageType,
+    IndexedColor,
+    OutlineStyle,
+)
 
 
 class CTkListbox(_CTkListbox):  # 暫定的な修正
@@ -111,7 +131,9 @@ class UIView(CTk):
                 padx=font_size // 10,
                 pady=(font_size // 2, 0),
             )
-            for text, column in (("追加", 0), ("除外", 1), ("クリア", 2))
+            for column, text in enumerate(
+                (ADD_LABEL, REMOVE_LABEL, CLEAR_LABEL),
+            )
         )
 
         # 出力フォルダ
@@ -143,7 +165,7 @@ class UIView(CTk):
                 row=0,
                 padx=(font_size // 5, 0),
             )
-            for text, column in (("変更", 1), ("開く", 2))
+            for column, text in enumerate((CHANGE_LABEL, OPEN_LABEL), 1)
         )
 
         # 出力サイズ
@@ -151,7 +173,7 @@ class UIView(CTk):
             CTkLabel,
             master=right_frame,
             pady=(font_size // 2, 0),
-            text="出力サイズ",
+            text=OUTPUT_SIZE_LABEL,
         )
         self.image_size = self.create_widget(
             CTkSegmentedButton,
@@ -162,13 +184,13 @@ class UIView(CTk):
         self.image_size_2x = self.create_widget(
             CTkCheckBox,
             master=right_frame,
-            text="2倍サイズ",
+            text=OUTPUT_2X_LABEL,
             pady=(0, font_size // 2),
         )
         self.image_size_4x = self.create_widget(
             CTkCheckBox,
             master=right_frame,
-            text="4倍サイズ",
+            text=OUTPUT_4X_LABEL,
             pady=(0, font_size // 2),
         )
 
@@ -177,7 +199,7 @@ class UIView(CTk):
             CTkLabel,
             master=right_frame,
             pady=(font_size // 2, 0),
-            text="出力形式",
+            text=OUTPUT_FORMAT_LABEL,
         )
         self.image_type = self.create_widget(
             CTkSegmentedButton,
@@ -193,7 +215,7 @@ class UIView(CTk):
         self.create_widget(
             CTkLabel,
             master=block,
-            text="減色",
+            text=INDEXED_COLOR_LABEL,
             font=self.font,
             text_color=None,
             padx=(0, font_size // 4),
@@ -209,7 +231,7 @@ class UIView(CTk):
         self.color_mask = self.create_widget(
             CTkCheckBox,
             master=right_frame,
-            text="透過色を保護",
+            text=COLOR_MASK_LABEL,
             pady=(0, font_size // 2),
         )
         block = self.create_widget(
@@ -220,7 +242,7 @@ class UIView(CTk):
         self.create_widget(
             CTkLabel,
             master=block,
-            text="縁取り",
+            text=OUTLINE_STYLE_LABEL,
             font=self.font,
             text_color=None,
             padx=(0, font_size // 4),
@@ -233,17 +255,18 @@ class UIView(CTk):
             column=1,
             row=0,
         )
+
+        # スペース調整
         block = self.create_widget(CTkFrame, master=right_frame)
         right_frame.grid_rowconfigure(block.grid_info()["row"], weight=1)
+
+        # 注意事項
         block = self.create_widget(
             CTkFrame,
             master=right_frame,
             pady=(0, font_size // 2),
         )
-        for text in (
-            "※入力ファイルを変換し、出力フォルダに保存します。",
-            "※出力フォルダ内の同名ファイルは上書きされます。",
-        ):
+        for text in NOTICE_MESSAGES:
             self.create_widget(
                 CTkLabel,
                 master=block,
@@ -251,13 +274,15 @@ class UIView(CTk):
                 text=text,
                 text_color=None,
             )
+
+        # 実行・終了ボタン
         block = self.create_widget(CTkFrame, master=right_frame)
         block.grid_columnconfigure(tuple(range(2)), weight=1)
         block.grid_rowconfigure(0, minsize=font_size * 2)
         self.execute_button = self.create_widget(
             CTkButton,
             master=block,
-            text="実行",
+            text=EXECUTE_LABEL,
             fg_color="royalblue",
             hover_color="cornflowerblue",
             padx=(0, font_size // 5),
@@ -265,7 +290,7 @@ class UIView(CTk):
         self.quit_button = self.create_widget(
             CTkButton,
             master=block,
-            text="終了",
+            text=QUIT_LABEL,
             fg_color="tomato",
             hover_color="lightsalmon",
             column=1,

@@ -6,7 +6,7 @@ import tempfile
 from enum import Enum
 from pathlib import Path
 
-from common import (
+from constants import (
     MAGICK_PATH,
     ImageSize,
     ImageType,

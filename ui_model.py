@@ -4,7 +4,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-from common import (
+from constants import (
     OUTPUT_PATH,
     ImageSize,
     ImageType,
