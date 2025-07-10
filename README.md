@@ -29,8 +29,9 @@ WirthMage は CardWirth 向けに画像形式・サイズ・色深度などを�
 
 ### 単一実行ファイル版の場合
 
-1. ZIP を展開
-2. `WirthMage.exe` を直接ダブルクリックで起動
+1. [Releases](https://github.com/AzamiHaruCat/WirthMage/releases) から ZIP をダウンロード
+2. ZIP を展開
+3. `WirthMage.exe` を直接ダブルクリックで起動
 
 ### Python 実行版の場合
 
