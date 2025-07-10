@@ -60,4 +60,4 @@ MIT License
 
 _______________________________________________________________________________
 
-© 2025 WirthMage Project All rights reserved.
+© 2025 AzamiHaruCat All rights reserved.
