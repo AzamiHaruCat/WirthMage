@@ -9,6 +9,7 @@
 
 import ast
 import os
+import threading
 from collections.abc import Iterable
 from pathlib import Path
 from typing import cast
@@ -25,6 +26,7 @@ from common import (
     ImageType,
 )
 from converter import convert
+from progress import ProgressModel, ProgressView
 from ui_model import UIModel
 from ui_view import UIView
 
@@ -167,6 +169,19 @@ class App:
         self.view.outline_style.configure(state=state)
 
     def execute(self):
+        input_files = self.get_input_files()
+        total_files = len(input_files)
+        self.show_progress(total_files)
+
+    def show_progress(self, total_files):
+        progress_model = ProgressModel(total_files)
+        progress_view = ProgressView(self.view, progress_model)
+        threading.Thread(
+            target=lambda: self.progress_worker(progress_view),
+            daemon=True,
+        ).start()
+
+    def progress_worker(self, progress_view: ProgressView):
         params = {
             key: value.get()
             for key, value in self.model.__dict__.items()
@@ -175,13 +190,17 @@ class App:
         input_files = self.get_input_files()
 
         for path in input_files.values():
-            path = Path(path)
-            if path.is_file():
+            if progress_view.model.cancelled:
+                break
+
+            if (path := Path(path)).is_file():
                 try:
                     convert(path, **params)
                 except FileNotFoundError:
                     del input_files[path.name]
                     self.model.input_files.set(input_files)
+                finally:
+                    progress_view.advance()
 
     def quit(self):
         self.model.save(CONFIG_JSON)
