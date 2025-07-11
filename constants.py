@@ -11,7 +11,7 @@ ROOT_PATH = Path(
     if Path(sys.executable).name.startswith("python")
     else sys.executable
 ).parent
-ASSETS_PATH = ROOT_PATH / "assets"
+ASSETS_PATH = Path(__file__).with_name("assets")
 INPUT_PATH = Path.home() / "Pictures"
 OUTPUT_PATH = ROOT_PATH / "output"
 MAGICK_PATH = ROOT_PATH / "lib/ImageMagick"
@@ -48,14 +48,6 @@ IMAGE_TYPES = (
     ("画像ファイル", "*.bmp;*.png;*.jpg;*.jpeg;*.gif"),
     ("すべてのファイル", "*.*"),
 )
-
-
-try:
-    import __nuitka_resource_reader  # type: ignore
-
-    ASSETS_PATH = __nuitka_resource_reader.resource_path("assets")
-except ModuleNotFoundError:
-    pass
 
 
 class ImageSize(StrEnum):
