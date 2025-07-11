@@ -6,11 +6,11 @@ from pathlib import Path
 APP_NAME = "WirthMage🧙"
 WINDOW_TITLE = f"{APP_NAME} :: CardWirth用画像コンバータ"
 
-ROOT_PATH = Path(
-    __file__
+ROOT_PATH = (
+    Path(__file__).parent
     if Path(sys.executable).name.startswith("python")
-    else sys.executable
-).parent
+    else Path(sys.executable).parent
+)
 ASSETS_PATH = Path(__file__).with_name("assets")
 INPUT_PATH = Path.home() / "Pictures"
 OUTPUT_PATH = ROOT_PATH / "output"
