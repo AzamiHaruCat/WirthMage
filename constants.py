@@ -38,7 +38,6 @@ NOTICE_MESSAGES = (
 EXECUTE_LABEL = "実行"
 QUIT_LABEL = "終了"
 
-PROGRESS_TITLE = "進行中..."
 PROGRESS_LABEL = "{total}件中{current}番目が進行中..."
 CANCEL_LABEL = "キャンセル"
 

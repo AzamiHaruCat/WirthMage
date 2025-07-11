@@ -3,6 +3,7 @@ from typing import Type, TypeVar
 
 from CTkListbox import CTkListbox as _CTkListbox
 from customtkinter import (
+    CENTER,
     CTk,
     CTkButton,
     CTkCheckBox,
@@ -95,7 +96,7 @@ class UIView(CTk, TkinterDnD.Tk):
         # ルートフレーム
         root_frame = CTkFrame(self, fg_color="transparent")
         root_frame.place(
-            anchor="center",
+            anchor=CENTER,
             relx=0.5,
             rely=0.5,
             relwidth=1.0,
@@ -103,11 +104,12 @@ class UIView(CTk, TkinterDnD.Tk):
         )
 
         # 左右フレーム
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        root_frame.grid_columnconfigure(0, weight=1)
+        root_frame.grid_rowconfigure(0, weight=1)
         left_frame, right_frame = (
             self.create_widget(
                 CTkFrame,
+                master=root_frame,
                 column=column,
                 row=0,
                 padx=font_size // 2,
