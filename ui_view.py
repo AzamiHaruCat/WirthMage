@@ -19,6 +19,7 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 
 from constants import (
     ADD_LABEL,
+    ASSETS_PATH,
     CHANGE_LABEL,
     CLEAR_LABEL,
     COLOR_MASK_LABEL,
@@ -71,6 +72,11 @@ class UIView(CTk, TkinterDnD.Tk):
         TkinterDnD.Tk.__init__(self)
         self.drop_target_register(DND_FILES)
 
+        # アイコン
+        icon_path = ASSETS_PATH / "icon.ico"
+        self.iconbitmap(icon_path)
+        self.iconbitmap(default=icon_path)
+
         # フォント
         s_width = self.winfo_screenwidth()
         s_height = self.winfo_screenheight()
@@ -84,9 +90,17 @@ class UIView(CTk, TkinterDnD.Tk):
         w_width = font_size * 40
         w_height = font_size * 28
         self.center_geometry(w_width, w_height)
+        self.configure(padx=font_size // 2, pady=font_size // 2)
 
-        # マージン
-        self.config(padx=font_size // 2, pady=font_size // 2)
+        # ルートフレーム
+        root_frame = CTkFrame(self, fg_color="transparent")
+        root_frame.place(
+            anchor="center",
+            relx=0.5,
+            rely=0.5,
+            relwidth=1.0,
+            relheight=1.0,
+        )
 
         # 左右フレーム
         self.grid_columnconfigure(0, weight=1)

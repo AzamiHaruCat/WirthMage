@@ -1,10 +1,13 @@
 # nuitka-project: --onefile
 # nuitka-project: --output-filename=WirthMage.exe
 # nuitka-project: --windows-console-mode=disable
+# nuitka-project: --windows-icon-from-ico=assets/icon.ico
 # nuitka-project: --enable-plugin=tk-inter
+# nuitka-project: --include-data-dir=assets=assets
 # nuitka-project: --include-onefile-external-data=lib=lib
 # nuitka-project: --include-package=customtkinter
 # nuitka-project: --include-package=CTkListbox
+# nuitka-project: --include-package=tkinterdnd2
 # nuitka-project: --msvc=latest
 
 import ast
@@ -185,8 +188,8 @@ class App:
 
     def execute(self):
         input_files = self.get_input_files()
-        total_files = len(input_files)
-        self.show_progress(total_files)
+        if total_files := len(input_files):
+            self.show_progress(total_files)
 
     def show_progress(self, total_files):
         progress_model = ProgressModel(total_files)
