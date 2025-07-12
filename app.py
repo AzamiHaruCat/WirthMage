@@ -9,6 +9,10 @@
 # nuitka-project: --include-package=CTkListbox
 # nuitka-project: --include-package=tkinterdnd2
 # nuitka-project: --msvc=latest
+# nuitka-project: --product-name=WirthMage
+# nuitka-project: --file-description=CardWirth用画像コンバータ
+# nuitka-project: --file-version=0.0.2
+# nuitka-project: --copyright=(C) 2025 AzamiHaruCat https://github.com/AzamiHaruCat/WirthMage
 
 import ast
 import os
