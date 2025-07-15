@@ -10,7 +10,6 @@ Copy-Item "$PSScriptRoot\dist\WirthMage.exe" -Destination "$baseDir\WirthMage.ex
 Copy-Item "$PSScriptRoot\LICENSE" -Destination "$baseDir\LICENSE.txt"
 Copy-Item "$PSScriptRoot\README.md" -Destination "$baseDir\README.txt"
 Copy-Item "$PSScriptRoot\ChangeLog.txt" -Destination "$baseDir\ChangeLog.txt"
-robocopy "$PSScriptRoot\lib" "$baseDir\lib" /E /NFL /NDL /NJH /NJS /NC /NS
 
 Compress-Archive -Path $baseDir -DestinationPath "$PSScriptRoot\dist\$zipName" -Force -CompressionLevel Optimal
 Set-Location $PSScriptRoot

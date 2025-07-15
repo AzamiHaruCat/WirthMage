@@ -11,4 +11,3 @@ if (-not(Test-Path $pythonExe)) {
 
 . .venv\Scripts\Activate.ps1
 & $pythonExe -m nuitka --output-dir=dist app.py
-robocopy lib dist\lib /E /NFL /NDL /NJH /NJS /NC /NS

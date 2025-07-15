@@ -11,10 +11,11 @@ ROOT_PATH = (
     if Path(sys.executable).name.startswith("python")
     else Path(sys.executable).parent
 )
-ASSETS_PATH = Path(__file__).with_name("assets")
+RESOURCE_PATH = Path(__file__).parent
+ASSETS_PATH = RESOURCE_PATH / "assets"
+MAGICK_PATH = RESOURCE_PATH / "lib/ImageMagick"
 INPUT_PATH = Path.home() / "Pictures"
 OUTPUT_PATH = ROOT_PATH / "output"
-MAGICK_PATH = ROOT_PATH / "lib/ImageMagick"
 CONFIG_JSON = ROOT_PATH / "config.json"
 
 INPUT_FILES_LABEL = "入力ファイル"
@@ -25,8 +26,8 @@ OUTPUT_DIR_LABEL = "出力フォルダ"
 CHANGE_LABEL = "変更"
 OPEN_LABEL = "開く"
 OUTPUT_SIZE_LABEL = "出力サイズ"
-OUTPUT_2X_LABEL = "2倍サイズ"
-OUTPUT_4X_LABEL = "4倍サイズ"
+OUTPUT_X2_LABEL = "2倍サイズ"
+OUTPUT_X4_LABEL = "4倍サイズ"
 OUTPUT_FORMAT_LABEL = "出力形式"
 INDEXED_COLOR_LABEL = "減色"
 COLOR_MASK_LABEL = "透過色を保護"
@@ -38,11 +39,12 @@ NOTICE_MESSAGES = (
 EXECUTE_LABEL = "実行"
 QUIT_LABEL = "終了"
 
+PROGRESS_TITLE = "進行中..."
 PROGRESS_LABEL = "{total}件中{current}番目が進行中..."
 CANCEL_LABEL = "キャンセル"
 
 FILE_DIALOG_TITLE = f"入力ファイルを選択 :: {APP_NAME}"
-FOLDER_FIALOG_TITLE = f"出力フォルダを選択 :: {APP_NAME}"
+FOLDER_DIALOG_TITLE = f"出力フォルダを選択 :: {APP_NAME}"
 IMAGE_TYPES = (
     ("画像ファイル", "*.bmp;*.png;*.jpg;*.jpeg;*.gif"),
     ("すべてのファイル", "*.*"),

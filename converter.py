@@ -76,8 +76,8 @@ def convert(
     path: str | Path,
     output_dir: str | Path,
     image_size: ImageSize = ImageSize.ASIS,
-    image_size_2x: bool = False,
-    image_size_4x: bool = False,
+    output_x2: bool = False,
+    output_x4: bool = False,
     image_type: ImageType = ImageType.BMP,
     indexed_color: IndexedColor = IndexedColor.NONE,
     color_mask: bool = False,
@@ -96,9 +96,9 @@ def convert(
     colors = indexed_color.number
 
     for x in 1, 2, 4:
-        if x == 2 and not image_size_2x:
+        if x == 2 and not output_x2:
             continue
-        if x == 4 and not image_size_4x:
+        if x == 4 and not output_x4:
             continue
 
         ext = f".{image_type.ext}" if x == 1 else f".x{x}.{image_type.ext}"

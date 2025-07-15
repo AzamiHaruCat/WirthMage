@@ -2,251 +2,254 @@
 # nuitka-project: --output-filename=WirthMage.exe
 # nuitka-project: --windows-console-mode=disable
 # nuitka-project: --windows-icon-from-ico=assets/icon.ico
-# nuitka-project: --enable-plugin=tk-inter
 # nuitka-project: --include-data-dir=assets=assets
-# nuitka-project: --include-onefile-external-data=lib=lib
-# nuitka-project: --include-package=customtkinter
-# nuitka-project: --include-package=CTkListbox
-# nuitka-project: --include-package=tkinterdnd2
+# nuitka-project: --include-raw-dir=lib=lib
+# nuitka-project: --follow-imports
 # nuitka-project: --msvc=latest
 # nuitka-project: --product-name=WirthMage
 # nuitka-project: --file-description=CardWirth用画像コンバータ
 # nuitka-project: --file-version=0.0.2
 # nuitka-project: --copyright=(C) 2025 AzamiHaruCat https://github.com/AzamiHaruCat/WirthMage
 
-import ast
+from __future__ import annotations
+
 import os
 import threading
 from collections.abc import Iterable
 from pathlib import Path
-from typing import cast
+from typing import List
 
-import customtkinter as ctk
+import wx
 
-from constants import (
-    CONFIG_JSON,
-    FILE_DIALOG_TITLE,
-    FOLDER_FIALOG_TITLE,
-    IMAGE_TYPES,
-    INPUT_PATH,
-    WINDOW_TITLE,
-    ImageSize,
-    ImageType,
-)
+import constants as cs
 from converter import convert
-from progress import ProgressModel, ProgressView
-from ui_model import UIModel
-from ui_view import UIView
+from converter_params import ConverterParams
 
 
-class App:
-    model: UIModel
-    view: UIView
-
-    input_dir = INPUT_PATH
+class App(wx.App):
+    input_dir = cs.INPUT_PATH
 
     def __init__(self) -> None:
-        ctk.set_default_color_theme("green")
+        super().__init__(False)
 
-        view = self.view = UIView()
-        model = self.model = UIModel()
+        import ui  # The wx.App object must be created first!
 
-        view.title(WINDOW_TITLE)
+        view = self.view = ui.MainFrame()
+        model = self.model = ConverterParams()
 
-        if CONFIG_JSON.is_file():
-            model.load(CONFIG_JSON)
-            self.get_input_files()
+        if cs.CONFIG_JSON.is_file():
+            model.load(cs.CONFIG_JSON)
 
-        if not model.output_dir.get().exists():
-            model.output_dir.set(model.output_dir.default_value)
+        view.panel.SetDropTarget(self.FileDropTarget(self))
 
-        view.input_files.configure(listvariable=model.input_files)
-        view.output_dir.configure(textvariable=model.output_dir)
+        block = view.input_files
+        block.listbox.SetItems(sorted(model.input_files.keys()))
+        block.add_button.Bind(ui.EVT_CLICKED, self.add_input_files)
+        block.remove_button.Bind(ui.EVT_CLICKED, self.remove_input_files)
+        block.clear_button.Bind(ui.EVT_CLICKED, self.clear_input_files)
 
-        view.image_size.configure(
-            variable=model.image_size,
-            command=self.image_size_changed,
+        block = view.output_dir
+        block.text.SetLabel(str(model.output_dir))
+        block.change_button.Bind(ui.EVT_CLICKED, self.change_output_dir)
+        block.open_button.Bind(ui.EVT_CLICKED, self.show_output_dir)
+
+        block = view.output_size
+        block.switch.SetValue(model.image_size)
+        block.x2_checkbox.SetValue(model.output_x2)
+        block.x4_checkbox.SetValue(model.output_x4)
+        for control in block.controls:
+            control.Bind(ui.EVT_CLICKED, self.on_change_output_size)
+        self.on_change_output_size()
+
+        block = view.output_format
+        block.switch.SetValue(model.image_type)
+        block.color_mask_checkbox.SetValue(model.color_mask)
+        block.indexed_color_choice.SetSelection(
+            tuple(cs.IndexedColor).index(model.indexed_color)
         )
-        self.image_size_changed(cast(ImageSize, model.image_size.get()))
-        view.image_size_2x.configure(variable=model.image_size_2x)
-        view.image_size_4x.configure(variable=model.image_size_4x)
-
-        view.image_type.configure(
-            variable=model.image_type,
-            command=self.image_type_changed,
+        block.outline_style_choice.SetSelection(
+            tuple(cs.OutlineStyle).index(model.outline_style)
         )
-        self.image_type_changed(cast(ImageType, model.image_type.get()))
-        view.indexed_color.configure(variable=model.indexed_color)
-        view.color_mask.configure(
-            variable=model.color_mask,
-            command=self.color_mask_changed,
-        )
-        view.outline_style.configure(variable=model.outline_style)
+        for control in block.controls:
+            control.Bind(ui.EVT_CLICKED, self.on_change_output_format)
+        self.on_change_output_format()
 
-        view.input_files_add_button.configure(command=self.add_input_files)
-        view.input_files_remove_button.configure(
-            command=self.remove_input_files,
-        )
-        view.input_files_clear_button.configure(command=self.clear_input_files)
+        self.view.execute_button.Bind(ui.EVT_CLICKED, self.execute)
+        self.view.quit_button.Bind(ui.EVT_CLICKED, self.quit)
+        self.view.Bind(wx.EVT_CLOSE, self.quit)
 
-        view.output_dir_change_button.configure(command=self.change_output_dir)
-        view.output_dir_show_button.configure(command=self.show_output_dir)
+        self.view.Bind(wx.EVT_ACTIVATE, self.refresh)
 
-        view.execute_button.configure(command=self.execute)
-        view.quit_button.configure(command=self.quit)
-        view.protocol("WM_DELETE_WINDOW", self.quit)
+    def refresh(self, *_) -> None:
+        for control in (
+            *self.view.input_files.controls,
+            *self.view.output_dir.controls,
+            *self.view.output_size.controls,
+            *self.view.output_format.controls,
+            self.view.execute_button,
+            self.view.quit_button,
+        ):
+            control.Refresh()
 
-        view.dnd_bind("<<Drop>>", self.on_drop)
+    def on_change_output_size(self, *_) -> None:
+        block = self.view.output_size
+        self.model.image_size = cs.ImageSize(block.switch.GetValue())
+        self.model.output_x2 = block.x2_checkbox.GetValue()
+        self.model.output_x4 = block.x4_checkbox.GetValue()
+        flag = block.switch.GetSelection() != 0
+        block.x2_checkbox.Enable(flag)
+        block.x4_checkbox.Enable(flag)
+        self.refresh()
 
-    def on_drop(self, event):
-        image_suffixes = {".bmp", ".png", ".jpg", ".jpeg", ".gif"}
-        image_files = [
-            path
-            for path in self.view.tk.splitlist(event.data)
-            if Path(path).suffix.lower() in image_suffixes
+    def on_change_output_format(self, *_) -> None:
+        block = self.view.output_format
+        self.model.image_type = cs.ImageType(block.switch.GetValue())
+        self.model.color_mask = block.color_mask_checkbox.GetValue()
+        self.model.indexed_color = tuple(cs.IndexedColor)[
+            block.indexed_color_choice.GetSelection()
         ]
-        if image_files:
-            self._add_input_files(image_files)
+        self.model.outline_style = tuple(cs.OutlineStyle)[
+            block.outline_style_choice.GetSelection()
+        ]
+        flag = self.model.image_type != cs.ImageType.JPEG
+        block.color_mask_checkbox.Enable(flag)
+        block.indexed_color_choice.Enable(flag)
+        flag = flag and self.model.color_mask
+        block.outline_style_choice.Enable(flag)
+        self.refresh()
 
-    def get_input_files(self):
-        data = ast.literal_eval(self.model.input_files.get())
-        ast.literal_eval
-        if not isinstance(data, dict):
-            return dict()
-        not_exists = [k for k, v in data.items() if not Path(v).exists()]
-        if not_exists:
-            for key in not_exists:
-                del data[key]
-            self.model.input_files.set(data)
-        return data
+    def add_input_files(self, *_) -> None:
+        with wx.FileDialog(
+            self.view,
+            message=cs.FILE_DIALOG_TITLE,
+            style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST,
+            wildcard="|".join("|".join(x) for x in cs.IMAGE_TYPES),
+            defaultDir=str(self.input_dir),
+        ) as dialog:
+            if dialog.ShowModal() == wx.ID_OK:
+                paths = dialog.GetPaths()
+                self._add_input_files(paths)
+        self.refresh()
 
-    def add_input_files(self):
-        paths = ctk.filedialog.askopenfilenames(
-            title=FILE_DIALOG_TITLE,
-            filetypes=IMAGE_TYPES,
-            initialdir=self.input_dir,
-        )
-        if paths:
-            self._add_input_files(paths)
-
-    def _add_input_files(self, paths: Iterable[str]):
-        data = self.get_input_files()
+    def _add_input_files(self, paths: Iterable[str | Path]) -> None:
+        data = self.model.input_files
+        listbox = self.view.input_files.listbox
         for path in paths:
-            path = Path(path)
-            data[path.name] = str(path.absolute())
+            path = Path(path).absolute()
+            data[path.name] = path
+        listbox.SetItems(sorted(data.keys()))
         self.input_dir = path.parent
-        self.model.input_files.set(dict(sorted(data.items())))
+        self.refresh()
 
-    def remove_input_files(self):
-        data = self.get_input_files()
-        keys = tuple(data.keys())
-        selection = self.view.input_files.curselection()
-        if not selection and selection != 0:
-            return
-        if isinstance(selection, Iterable):
-            for i in selection:
-                del data[keys[i]]
-        elif selection is not None:
-            del data[selection]
-        self.model.input_files.set(data)
+    def remove_input_files(self, *_) -> None:
+        data = self.model.input_files
+        listbox = self.view.input_files.listbox
+        for i, item in enumerate(listbox.GetItems()):
+            if listbox.IsSelected(i):
+                del data[item]
+        listbox.SetItems(sorted(data.keys()))
+        self.refresh()
 
-    def clear_input_files(self):
-        self.model.input_files.set({})
+    def clear_input_files(self, *_) -> None:
+        self.model.input_files = {}
+        self.view.input_files.listbox.SetItems(())
+        self.refresh()
 
-    def change_output_dir(self):
-        selection = ctk.filedialog.askdirectory(
-            title=FOLDER_FIALOG_TITLE,
-            initialdir=self.model.output_dir.get(),
-        )
-        if selection:
-            self.model.output_dir.set(selection)
+    def change_output_dir(self, *_) -> None:
+        with wx.DirDialog(
+            self.view,
+            message=cs.FOLDER_DIALOG_TITLE,
+            style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST,
+            defaultPath=str(self.model.output_dir),
+        ) as dialog:
+            if dialog.ShowModal() == wx.ID_OK:
+                path = dialog.GetPath()
+                self.model.output_dir = path
+                self.view.output_dir.text.SetLabel(path)
+        self.refresh()
 
-    def show_output_dir(self):
-        os.startfile(self.model.output_dir.get())
+    def show_output_dir(self, *_) -> None:
+        os.startfile(self.model.output_dir)
+        self.refresh()
 
-    def image_size_changed(self, value: ImageSize):
-        state = ctk.NORMAL if value != ImageSize.ASIS else ctk.DISABLED
-
-        for widget in (
-            self.view.image_size_2x,
-            self.view.image_size_4x,
-        ):
-            widget.configure(state=state)
-
-    def image_type_changed(self, value: ImageType):
-        state = ctk.NORMAL if value != ImageType.JPEG else ctk.DISABLED
-
-        for widget in (
-            self.view.indexed_color,
-            self.view.color_mask,
-            self.view.outline_style,
-        ):
-            widget.configure(state=state)
-
-        if state == ctk.NORMAL:
-            self.color_mask_changed()
-
-    def color_mask_changed(self):
-        state = ctk.NORMAL if self.model.color_mask.get() else ctk.DISABLED
-        self.view.outline_style.configure(state=state)
-
-    def execute(self):
-        input_files = self.get_input_files()
-        if total_files := len(input_files):
+    def execute(self, *_) -> None:
+        self.model.save(cs.CONFIG_JSON)
+        if total_files := len(self.model.input_files):
             self.show_progress(total_files)
 
-    def show_progress(self, total_files):
-        progress_model = ProgressModel(total_files)
-        progress_view = ProgressView(self.view, progress_model)
-        threading.Thread(
-            target=lambda: self.progress_worker(progress_view),
-            daemon=True,
-        ).start()
+    def show_progress(self, total_files: int) -> None:
+        import ui
 
-    def progress_worker(self, progress_view: ProgressView):
-        params = {
-            key: value.get()
-            for key, value in self.model.__dict__.items()
-            if key != "input_files"
-        }
-        input_files = self.get_input_files()
+        progress_model = ui.ProgressModel(total_files)
+        progress_view = ui.ProgressDialog(self.view, progress_model)
 
-        for path in input_files.values():
-            if progress_view.model.cancelled:
-                break
+        def worker() -> None:
+            listbox = self.view.input_files.listbox
+            data = self.model.input_files
+            paths = tuple(data.values())
+            params = {**vars(self.model)}
+            del params["input_files"]
 
-            if (path := Path(path)).is_file():
-                try:
-                    convert(path, **params)
-                except FileNotFoundError:
-                    del input_files[path.name]
-                    self.model.input_files.set(input_files)
-                finally:
-                    progress_view.advance()
+            for path in paths:
+                if progress_view.model.is_cancelled:
+                    break
 
-    def quit(self):
-        self.model.save(CONFIG_JSON)
-        self.view.quit()
+                if (path := Path(path)).is_file():
+                    try:
+                        convert(path, **params)
+                    except FileNotFoundError:
+                        del data[path.name]
+                        wx.CallAfter(listbox.SetItems, sorted(data.keys()))
+                    finally:
+                        wx.CallAfter(progress_view.advance)
 
-    def mainloop(self) -> None:
+            wx.CallAfter(self.refresh)
+
+        threading.Thread(target=worker, daemon=True).start()
+        progress_view.ShowModal()
+
+    def quit(self, *_) -> None:
+        self.model.save(cs.CONFIG_JSON)
+        self.view.Destroy()
+
+    def Mainloop(self) -> None:
         self.watch_input_files()
-        self.view.mainloop()
+        self.view.Show()
+        super().MainLoop()
 
     def watch_input_files(self) -> None:
-        input_files = self.get_input_files()
+        data = self.model.input_files
         deleted = False
 
-        for path in input_files.values():
-            path = Path(path)
+        for key, path in data.items():
             if not path.is_file():
-                del input_files[path.name]
+                del data[key]
                 deleted = True
 
         if deleted:
-            self.model.input_files.set(input_files)
+            self.view.input_files.listbox.SetItems(sorted(data.keys()))
 
-        self.view.after(100, self.watch_input_files)
+        wx.CallLater(100, self.watch_input_files)
+
+    class FileDropTarget(wx.FileDropTarget):
+
+        def __init__(self, app: App) -> None:
+            super().__init__()
+            self.app = app
+
+        def OnDropFiles(self, x: int, y: int, filenames: List[str]) -> bool:
+            filenames = [
+                filename
+                for filename in filenames
+                if Path(filename).suffix.lower()
+                in (".bmp", ".png", ".jpg", ".jpeg", ".gif")
+            ]
+            if filenames:
+                self.app._add_input_files(filenames)
+                return True
+            else:
+                return False
 
 
 if __name__ == "__main__":
-    App().mainloop()
+    App().Mainloop()
