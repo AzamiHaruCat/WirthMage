@@ -112,7 +112,6 @@ class App(wx.App):
         self.model.outline_style = tuple(cs.OutlineStyle)[
             block.outline_style_choice.GetSelection()
         ]
-        print(vars(self.model))
         flag = self.model.image_type != cs.ImageType.JPEG
         block.color_mask_checkbox.Enable(flag)
         block.indexed_color_choice.Enable(flag)
