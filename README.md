@@ -22,7 +22,7 @@ WirthMage は CardWirth 向けに画像形式・サイズ・色深度などを�
 - Windows 11（Windows 7 以降で動く可能性）
 - Python 3.13
 - ImageMagick 7.x（ポータブル版を同梱）
-- 使用ライブラリ：customtkinter、CTkListbox、tkinterdnd2
+- 使用ライブラリ：wxPython
 
 インストール・実行方法
 ----------------------
