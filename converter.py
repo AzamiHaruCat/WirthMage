@@ -106,7 +106,8 @@ def convert(
         output_size = target_size.scale(x) if target_size else source_size
 
         # -remap mpr:palette ではうまくいかない
-        palette_path = Path(tempfile.mktemp(suffix=".png"))
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tf:
+            palette_path = Path(tf.name)
 
         # 左上ピクセルから背景色を設定
         # PNG圧縮は遅いので一時ファイル用に圧縮レベルを下げておく
