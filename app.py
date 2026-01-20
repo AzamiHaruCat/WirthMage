@@ -8,7 +8,7 @@
 # nuitka-project: --msvc=latest
 # nuitka-project: --product-name=WirthMage
 # nuitka-project: --file-description=CardWirth用画像コンバータ
-# nuitka-project: --file-version=0.0.2
+# nuitka-project: --file-version=0.0.3
 # nuitka-project: --copyright=(C) 2025 AzamiHaruCat https://github.com/AzamiHaruCat/WirthMage
 
 from __future__ import annotations

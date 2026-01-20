@@ -54,7 +54,9 @@ class ConverterParams:
             if key == "input_files":
                 if not isinstance(value, list):
                     continue
-                value = {p.name: p for p in (Path(v) for v in value)}
+                value = {
+                    p.name: p for p in (Path(v) for v in value) if p.exists()
+                }
 
             elif issubclass(expected_type, Enum):
                 try:
