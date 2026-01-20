@@ -1,4 +1,4 @@
-# nuitka-project: --onefile
+# nuitka-project: --standalone
 # nuitka-project: --output-filename=WirthMage.exe
 # nuitka-project: --windows-console-mode=disable
 # nuitka-project: --windows-icon-from-ico=assets/icon.ico
