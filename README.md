@@ -27,7 +27,7 @@ WirthMage は CardWirth 向けに画像形式・サイズ・色深度などを�
 インストール・実行方法
 ----------------------
 
-### 単一実行ファイル版の場合
+### exe 版の場合
 
 1. [Releases](https://github.com/AzamiHaruCat/WirthMage/releases) から ZIP をダウンロード
 2. ZIP を展開
